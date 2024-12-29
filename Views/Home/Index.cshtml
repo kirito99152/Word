@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<div class="form-group">
+    <input type="file" class="form-control" id="file"/>
+</div>
+<div class="form-group mt-2">
+    <button class="btn btn-primary" id="confirm">
+        Tải về
+    </button>
+</div>
+
+@* <form asp-action="getfile" enctype="multipart/form-data">
+    <input type="file" name="_file"/>
+    <input type="submit" value="tải"/>
+</form> *@
+@section Scripts {
+    <script>
+        document.getElementById("confirm").onclick = function(e) {
+            e.target.disabled = true;
+            e.target.innerHtml = `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Đang xử lý...
+            `;
+            let file = document.getElementById("file").files[0];
+            let formdata = new FormData();
+            formdata.append("_file", file);
+            fetch("/Home/getfile", {
+                method: 'POST',
+                body: formdata
+            })
+            .then(res => res.blob()).then(blob => {
+                var file = new File([blob], "new_word.docx", blob);
+                var src = URL.createObjectURL(file);
+                var a = document.createElement("a");
+                a.href = src;
+                a.download = file.name;
+                a.click();
+                e.target.disabled = false;
+                e.target.innerHtml = "Tải về";
+                @* URL.revokeObjectURL(url); *@
+            });
+        }
+    </script>
+}
